@@ -1,0 +1,52 @@
+#include "CTBot.h"
+#include"ESP8266Wifi.h"
+CTBot myBot;
+
+String ssid = "Redmi 9";     // SSID wifi
+String pass = "XiaomiRedmi9"; //password wifi
+String token = "5373422640:AAEVevjlFyWuO9jYjr88mA5abxeBeFLrSWo";   //  token bot telegram
+uint8_t relay = 0;            // pin  relay 
+
+void setup() {
+	// inisialisasi Serial
+	Serial.begin(115200);
+
+	// koneksi ESP8266 ke access point
+	myBot.wifiConnect(ssid, pass);
+
+	// set bot telegram
+	myBot.setTelegramToken(token);
+
+	// cek apakah koneksi ke wifi berhasil
+	if (myBot.testConnection()) {
+    myBot.sendMessage(msg.sender.id, "koneksi terhubung");  // notifikasi terhubung
+       }
+	else {
+		myBot.sendMessage(msg.sender.id, "koneksi tidak terhubung");  // notifikasi tidak terhubung
+}
+	// set the pin connected to the LED to act as output pin
+	pinMode(relay, OUTPUT);
+	digitalWrite(relay, HIGH); // turn off the led (inverted logic!)
+
+}
+
+void loop() {
+	// a variable to store telegram message data
+	TBMessage pesan;
+
+	// if there is an incoming message...
+	if (myBot.getNewMessage(pesan)) {
+
+		if (msg.text.equalsIgnoreCase("HIDUPKAN MOTOR"))       // jika pesan yang diterima adalah "NYALAKAN MOTOR"
+		{	digitalWrite(relay,LOW);                               // motor hidup
+			myBot.sendMessage(msg.sender.id, "Motor telah dihidupkan");  // kirim pesan notifikasi ke bot telegram
+		}
+		else if (msg.text.equalsIgnoreCase("MATIKAN MOTOR"))         // jika pesan yang diterima adalah "MATIKAN MOTOR"...
+		{	digitalWrite(relay,HIGH);                              // motor mati
+			myBot.sendMessage(msg.sender.id, "Motor telah dimatikan"); // kirim pesan notifikasi ke bot telegram
+		}
+		
+	}
+	// delay 500 ms
+	delay(500);
+}
